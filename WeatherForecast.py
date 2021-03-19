@@ -1,11 +1,10 @@
 #-*- coding: utf-8 -*-
-from os import write
 import urllib.request
 import json
 import csv
 import os
 import time
-from datetime import date, datetime, timedelta
+from datetime import datetime, timedelta
 import traceback
 
 # 設定 -----------------------
@@ -139,7 +138,7 @@ def sendErr(tb, log=0):
     from email.mime.text import MIMEText
     from email.utils import formatdate
     print(tb)
-    body_msg = "[GetWeatherForecast] 以下のエラーが発生しました\n{}\n\n{}".format('='*30, tb)
+    body_msg = "[GetWeatherForecast] {} で以下のエラーが発生しました\n{}\n\n{}".format(os.uname()[1], '='*30, tb)
     msg = MIMEText(body_msg)
     msg['Subject'] = '[GetWeatherForecast] エラー発生'
     msg['From'] = 'weather@shin-mai.com'
