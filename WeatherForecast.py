@@ -18,7 +18,7 @@ logEnable = True
 # -----------------------------
 
 # 初期化
-APIURL = 'http://www.data.jma.go.jp/fcd/yoho/wdist/jp/data/wdist/VPFD/{}.json?_{}'
+APIURL = 'https://www.jma.go.jp/bosai/jmatile/data/wdist/VPFD/{}.json?_{}'
 nextUpdate = None
 latestTime = datetime(2020,1,1,0,0)
 
