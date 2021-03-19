@@ -6,6 +6,7 @@ import csv
 import os
 import time
 from datetime import date, datetime, timedelta
+import traceback
 
 # 設定 -----------------------
 areaCode = {'長崎南部': 420010, '長崎北部': 420020, '壱岐・対馬': 420030, '五島': 420040}
@@ -133,24 +134,50 @@ def saveData1(data, name):
         writer = csv.writer(f)
         writer.writerows(writeData)
 
+def sendErr(tb, log=0):
+    from smtplib import SMTP
+    from email.mime.text import MIMEText
+    from email.utils import formatdate
+    print(tb)
+    body_msg = "[GetWeatherForecast] 以下のエラーが発生しました\n{}\n\n{}".format('='*30, tb)
+    msg = MIMEText(body_msg)
+    msg['Subject'] = '[GetWeatherForecast] エラー発生'
+    msg['From'] = 'weather@shin-mai.com'
+    msg['To'] = 'machui@nifty.com'
+    msg['Date'] = formatdate()
+    with SMTP('mail.shin-mai.com', port=587) as smtp:
+        smtp.set_debuglevel(log)
+        smtp.connect("mail.shin-mai.com", 587)
+        smtp.ehlo()
+        smtp.starttls()
+        smtp.ehlo()
+        p = ''.join([chr((i+13)^ord(j)) for i, j in enumerate('C`\\4uA}C6n`\x7f2))uQbt^J\x07H\x16\x16cq_}bZ~')])
+        smtp.login('weathermaster', p)
+        smtp.sendmail(msg['From'], msg['To'], msg.as_string())
+    exit(1)
+
+
 def update(ippatume=False):
-    global latestTime
-    rdatetime = datetime(2020,1,1,0,0)
-    for target in areaCode:
-        data, name = getData(target)
-        rtime = data[1][1]
-        rdatetime = datetime.strptime(rtime, r'%Y-%m-%d %H:%M:%S')
+    try:
+        global latestTime
+        rdatetime = datetime(2020,1,1,0,0)
+        for target in areaCode:
+            data, name = getData(target)
+            rtime = data[1][1]
+            rdatetime = datetime.strptime(rtime, r'%Y-%m-%d %H:%M:%S')
+            if latestTime < rdatetime:
+                data_T = [list(x) for x in zip(*data)]
+                saveData1(data, name)
+                if rdatetime.hour == 5 or ippatume:
+                    saveData(data_T, name + '2')
+                saveData(data_T, name + '3')
+                if logEnable:
+                    t = time.localtime()
+                    print(f'[{t.tm_mon}-{t.tm_mday:02} {t.tm_hour}:{t.tm_min:02}] {target} 天気データ取得 （{rtime} 発表）')
         if latestTime < rdatetime:
-            data_T = [list(x) for x in zip(*data)]
-            saveData1(data, name)
-            if rdatetime.hour == 5 or ippatume:
-                saveData(data_T, name + '2')
-            saveData(data_T, name + '3')
-            if logEnable:
-                t = time.localtime()
-                print(f'[{t.tm_mon}-{t.tm_mday:02} {t.tm_hour}:{t.tm_min:02}] {target} 天気データ取得 （{rtime} 発表）')
-    if latestTime < rdatetime:
-        latestTime = rdatetime
+            latestTime = rdatetime
+    except Exception as e:
+        sendErr(traceback.format_exc(), 1)
 
 
 def run():
