@@ -21,11 +21,22 @@ logEnable = True
 APIURL = 'https://www.jma.go.jp/bosai/jmatile/data/wdist/VPFD/{}.json?_{}'
 nextUpdate = None
 latestTime = datetime(2020,1,1,0,0)
+execPath = os.path.dirname(__file__)
 
+def readJson(filename=None):
+    global areaCode
+    if filename is None:
+        filename = os.path.join(execPath, 'areacode.json')
+    with open(filename, 'r') as f:
+        area = json.load(f)
+    if not len(area) == 0:
+        areaCode = area
 
-def init():
-    global saveDir
-    saveDir = saveDir + '/' if not saveDir[-1] == '/' else saveDir
+def writeJson(filename=None):
+    if filename is None:
+        filename = os.path.join(execPath, 'areacode.json')
+    with open(filename, 'w') as f:
+        json.dump(areaCode, f)
 
 
 def getData(target):
@@ -108,7 +119,7 @@ def saveData(data, name):
 
 
 def saveData1(data, name):
-    filename = f'{saveDir}/{name}1.csv'
+    filename = os.path.join(saveDir, f'{name}1.csv')
     os.makedirs(saveDir, exist_ok=True)
     first_time = datetime.strptime(data[0][1], r'%Y-%m-%d %H:%M:%S')
     new_time = first_time.replace(hour=6, minute=0, second=0)
@@ -181,7 +192,7 @@ def update(ippatume=False):
 
 def run():
     global nextUpdate
-    init()
+    readJson()
     if logEnable:
         t = time.localtime()
         print(f'[{t.tm_mon}-{t.tm_mday:02} {t.tm_hour}:{t.tm_min:02}] 開始: {interval}時間おきに更新（Ctrl+Cで終了）')
