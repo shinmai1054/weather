@@ -24,19 +24,25 @@ latestTime = datetime(2020,1,1,0,0)
 execPath = os.path.dirname(__file__)
 
 def readJson(filename=None):
-    global areaCode
+    global areaCode, saveDir
     if filename is None:
         filename = os.path.join(execPath, 'areacode.json')
     with open(filename, 'r') as f:
         area = json.load(f)
-    if not len(area) == 0:
-        areaCode = area
+
+    if 'saveDir' in area:
+        if not area['saveDir'] == '':
+            saveDir = area['saveDir'].format(TODAY=datetime.now().strftime("%Y%m%d"))
+    if 'areaCode' in area:
+        if not len(area['areaCode']) == 0:
+            areaCode = area['areaCode']
 
 def writeJson(filename=None):
     if filename is None:
         filename = os.path.join(execPath, 'areacode.json')
+    writeData = {'saveDir': saveDir, 'areaCode': areaCode}
     with open(filename, 'w') as f:
-        json.dump(areaCode, f)
+        json.dump(writeData, f, indent=4, ensure_ascii=False)
 
 
 def getData(target):
