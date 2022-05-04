@@ -101,7 +101,7 @@ def getData(target):
 
 def saveData(data, name):
     os.makedirs(saveDir, exist_ok=True)
-    filename = f'{saveDir}/{name}.csv'
+    filename = os.path.join(saveDir, f'{name}.csv')
     try:
         with open(filename, 'r') as f:
             csvData = [l for l in csv.reader(f)]
