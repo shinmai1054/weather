@@ -32,7 +32,7 @@ def readJson(filename=None):
 
     if 'saveDir' in area:
         if not area['saveDir'] == '':
-            saveDir = area['saveDir'].format(TODAY=datetime.now().strftime("%Y%m%d"))
+            saveDir = area['saveDir'].format(TODAY=datetime.now().strftime("%Y%m%d"), MACHINE=os.uname()[1].replace('.local', ''))
     if 'areaCode' in area:
         if not len(area['areaCode']) == 0:
             areaCode = area['areaCode']
